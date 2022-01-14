@@ -1,0 +1,46 @@
+{
+  "name": "node-week-9",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www",
+    "compile": "tsc",
+    "compile:watch": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.13",
+    "@types/http-errors": "^1.8.1",
+    "@types/jsonwebtoken": "^8.5.6",
+    "@types/mongoose": "^5.11.97",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "debug": "~2.6.9",
+    "dotenv": "^11.0.0",
+    "express": "^4.17.2",
+    "http-errors": "^2.0.0",
+    "jade": "~1.11.0",
+    "jest": "^27.4.7",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb-memory-server": "^8.1.0",
+    "mongoose": "^6.1.5",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/hapi__joi": "^17.1.8",
+    "@types/jest": "^27.4.0",
+    "@types/supertest": "^2.0.11",
+    "@types/uuid": "^8.3.4",
+    "connect-flash": "^0.1.1",
+    "express-session": "^1.17.2",
+    "ts-jest": "^27.1.2"
+  }
+}
