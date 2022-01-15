@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const auth_1 = require("../middleware/auth");
 const session = require("express-session");
 // const features = new ApiFeatures();
 //Load User model
@@ -110,17 +111,14 @@ router.post("/login", (req, res) => {
                     DOB: user.DOB,
                 };
                 //Sign Token
-                jsonwebtoken_1.default.sign(payload, "secret", {
+                jsonwebtoken_1.default.sign(payload, process.env.ACCESS_TOKEN_SCERET_KEY, {
                     expiresIn: 3600,
                 }, (err, token) => {
                     if (err)
                         throw err;
-                    console.log(err);
-                    const tokenData = token;
-                    res.cookie("jwt", tokenData, { httpOnly: true });
                     return res.status(200).json({
                         success: true,
-                        token: `Bearer ${tokenData}`,
+                        token,
                     });
                 });
             }
@@ -135,7 +133,7 @@ router.post("/login", (req, res) => {
 //@router POST create an account
 //@desc Create an account
 //@access Private
-router.post("/account", (req, res) => {
+router.post("/account", auth_1.authUser, (req, res) => {
     User_1.User.findOne({ email: req.body.email }).then((user) => __awaiter(void 0, void 0, void 0, function* () {
         if (!user) {
             return res.status(400).json({
@@ -177,7 +175,7 @@ router.post("/account", (req, res) => {
 //@router POST transfer funds
 //@desc Transfer funds
 //@access Private
-router.post("/transfer", (req, res) => {
+router.post("/transfer", auth_1.authUser, (req, res) => {
     const { amount, senderAccountNumber, receiverAccountNumber, transferDescription, } = req.body;
     const { error } = (0, transferValidation_1.transferValidationInput)(req.body);
     if (error) {
@@ -222,7 +220,7 @@ router.post("/transfer", (req, res) => {
 //@router GET CREDIT transaction by account number
 //@desc Get Credit transaction by account number
 //@access Private
-router.get("/transaction/credit/:accountNumber", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/transaction/credit/:accountNumber", auth_1.authUser, (req, res) => {
     const creditAccountNumber = req.params.accountNumber;
     Transaction_1.Transfer.find({ receiverAccountNumber: creditAccountNumber })
         .select({ _id: 0 })
@@ -244,11 +242,11 @@ router.get("/transaction/credit/:accountNumber", (req, res) => __awaiter(void 0,
         .catch((err) => console.log(res.status(400).json({
         error: "An error occurred fetching the credit transactions.",
     })));
-}));
+});
 //@router GET DEBIT transaction by account number
 //@desc Get Debit transaction by account number
 //@access Private
-router.get("/transaction/debit/:accountNumber", (req, res) => {
+router.get("/transaction/debit/:accountNumber", auth_1.authUser, (req, res) => {
     const debitAccountNumber = req.params.accountNumber;
     Transaction_1.Transfer.find({ senderAccountNumber: debitAccountNumber })
         .select({ _id: 0 })
@@ -273,7 +271,7 @@ router.get("/transaction/debit/:accountNumber", (req, res) => {
 //@route POST deposit funds
 //@desc Deposit funds
 //@access Private
-router.post("/deposit", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/deposit", auth_1.authUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.amount || !req.body.accountNumber) {
         return res.status(400).json({
             error: "Please enter the amount and account number",
@@ -293,7 +291,7 @@ router.post("/deposit", (req, res) => __awaiter(void 0, void 0, void 0, function
     });
     return res.status(200).json({ message: "Deposit successful", deposit });
 }));
-router.get("/accounts", (req, res) => {
+router.get("/accounts", auth_1.authUser, (req, res) => {
     Balances_1.Balances.find()
         .populate("userId", ["accountNumber", "balance"])
         .then((accounts) => {
@@ -309,7 +307,7 @@ router.get("/accounts", (req, res) => {
 //@route GET api/users/accounts/:accountNumber
 //@desc Get account by account number
 //@access Private
-router.get("/balances/:accountNumber", (req, res) => {
+router.get("/balances/:accountNumber", auth_1.authUser, (req, res) => {
     const errors = {
         account: "",
     };
@@ -322,9 +320,7 @@ router.get("/balances/:accountNumber", (req, res) => {
             errors.account = "This account does not exist";
             res.status(404).json(errors);
         }
-        res
-            .status(200)
-            .json({
+        res.status(200).json({
             message: "Balance by account number fetched successfully",
             account,
         });
@@ -334,7 +330,7 @@ router.get("/balances/:accountNumber", (req, res) => {
 //@router GET api/users/accounts/:userId
 //@desc GET account by useId
 //@access Private
-router.get("/balance/:userId", (req, res) => {
+router.get("/balance/:userId", auth_1.authUser, (req, res) => {
     const errors = {
         account: "",
     };

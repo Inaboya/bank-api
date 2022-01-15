@@ -1,27 +1,34 @@
 import jwt from "jsonwebtoken";
-import express, { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
+import { User } from "../models/User";
+
+export const authUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+    let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
 
-export const authUser = (req: Request, res: Response, next: NextFunction) => {
-     try {
-         const token = req.cookies.jwt;
+    try {
+        const decoded: any = jwt.verify(token as string, process.env.ACCESS_TOKEN_SCERET_KEY as string);
+        const user = await User.findById(decoded.id);
 
-         console.log(process.env.ACCESS_TOKEN_SCERET_KEY, "TOKEN");
+        if (!user) {
+            return res.status(401).json({ status: "error", message: "Not authorirized" });
+        }
 
-         if (token) {
-             jwt.verify(token, process.env.ACCESS_TOKEN_SCERET_KEY as string, (err: any, decodedToken: any) => {
-                
-                 // console.log(err)
-                 if (err) {
-                     throw new Error("Invalid token");
-                 } else {
-                     next()
-                 }
-             })
-         } else {
-             res.status(401).json({ message: "No token provided" });
-         }
-     } catch (error) {
-         res.sendStatus(401);
-     }
- }
+        req.user = user;
+        next();
+    }
+    catch (err) {
+        res.status(500).json({ status: "error", message: "Not authorirized" });
+    }
+};

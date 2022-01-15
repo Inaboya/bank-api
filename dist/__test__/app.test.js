@@ -27,7 +27,6 @@ describe("Sign Up/ Register Route & LOGIN ROUTE", () => {
             DOB: "2020-01-01",
         };
         const response = yield (0, supertest_1.default)(app_1.default).post("/users/register").send(data);
-        // console.log(response.body);
         expect(response.status).toBe(201);
     }));
     it("User should be able to login ", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,8 +35,8 @@ describe("Sign Up/ Register Route & LOGIN ROUTE", () => {
             password: "12345678",
         };
         const response = yield (0, supertest_1.default)(app_1.default).post("/users/login").send(data);
-        // console.log(response);
         token = response.body.token;
+        console.log(token);
         expect(response.status).toBe(200);
         expect(response.body.token).toBeDefined();
         expect(response.body).toHaveProperty("token");
@@ -51,7 +50,7 @@ describe("Balance Collections test", () => {
         };
         const response = yield (0, supertest_1.default)(app_1.default)
             .post("/users/account")
-            .set("Cookie", `Bearer ${token}`)
+            .set(`Authorization`, `Bearer ${token}`)
             .send(data);
         expect(response.status).toBe(201);
         expect(response.body.firstMember.balance).toEqual(5000);
@@ -64,27 +63,22 @@ describe("Balance Collections test", () => {
         };
         const response = yield (0, supertest_1.default)(app_1.default)
             .post("/users/deposit")
-            .set("Cookie", `Bearer ${token}`)
+            .set(`Authorization`, `Bearer ${token}`)
             .send(data);
-        // console.log(typeof response.body.deposit.balance);
-        // console.log(response.body)
-        // console.log(typeof data.amount);
         const sum = response.body.deposit.balance + data.amount;
         // console.log(sum);
         expect(response.status).toBe(200);
-        // expect(response.body.deposit.balance).toBe(sum);
     }));
     it("User should be able to get balance by account number", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app_1.default)
             .get("/users/balances/:accountNumber")
-            .set("Cookie", `Bearer ${token}`);
-        console.log(response.body);
+            .set(`Authorization`, `Bearer ${token}`);
         expect(response.status).toBe(200);
     }));
     it("User should be able to get balance by user id", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app_1.default)
             .get("/users/balances/:accountNumber")
-            .set("Cookie", `Bearer ${token}`);
+            .set(`Authorization`, `Bearer ${token}`);
         expect(response.status).toBe(200);
     }));
 });
@@ -98,17 +92,16 @@ describe("Transfer Collection Testing", () => {
         };
         const response = yield (0, supertest_1.default)(app_1.default)
             .post("/users/transfer")
-            .set("Cookie", `Bearer ${token}`)
+            .set(`Authorization`, `Bearer ${token}`)
             .send(data);
-        console.log(response.body);
         expect(response.status).toBe(200);
         expect(response.body.message).toBe("Transfer successful");
     }));
     it("User should be able to get credit transactions by account number", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app_1.default)
             .get("/users/transaction/credit/:accountNumber")
-            .set("Cookie", `Bearer ${token}`);
-        console.log(response.body);
+            .set(`Authorization`, `Bearer ${token}`);
+        // console.log(response.body);
         expect(response.status).toBe(200);
         expect(response.body.message).toBe("Credit transaction fetched successfully");
         expect(response.body.status).toBe("Credit");
@@ -117,8 +110,8 @@ describe("Transfer Collection Testing", () => {
     it("User should be able to get debit transactions by account number", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(app_1.default)
             .get("/users/transaction/debit/:accountNumber")
-            .set("Cookie", `Bearer ${token}`);
-        console.log(response.body);
+            .set(`Authorization`, `Bearer ${token}`);
+        // console.log(response.body);
         expect(response.status).toBe(200);
         expect(response.body.message).toBe("Debit transaction fetched successfully");
         expect(response.body.status).toBe("Debit");

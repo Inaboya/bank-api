@@ -17,7 +17,6 @@ describe("Sign Up/ Register Route & LOGIN ROUTE", () => {
 
     const response = await request(app).post("/users/register").send(data);
 
-    // console.log(response.body);
 
     expect(response.status).toBe(201);
   });
@@ -30,9 +29,9 @@ describe("Sign Up/ Register Route & LOGIN ROUTE", () => {
 
     const response = await request(app).post("/users/login").send(data);
 
-    // console.log(response);
 
     token = response.body.token;
+    console.log(token);
 
     expect(response.status).toBe(200);
     expect(response.body.token).toBeDefined();
@@ -48,9 +47,11 @@ describe("Balance Collections test", () => {
       email: "mocktest@gmail.com",
     };
 
+    
+
     const response = await request(app)
       .post("/users/account")
-      .set("Cookie", `Bearer ${token}`)
+      .set(`Authorization`, `Bearer ${token}`)
       .send(data);
 
     expect(response.status).toBe(201);
@@ -66,28 +67,24 @@ describe("Balance Collections test", () => {
 
     const response = await request(app)
       .post("/users/deposit")
-      .set("Cookie", `Bearer ${token}`)
+      .set(`Authorization`, `Bearer ${token}`)
       .send(data);
-
-    // console.log(typeof response.body.deposit.balance);
-    // console.log(response.body)
-
-    // console.log(typeof data.amount);
+    
+    
 
     const sum = (response.body.deposit.balance as number) + data.amount;
 
     // console.log(sum);
 
     expect(response.status).toBe(200);
-    // expect(response.body.deposit.balance).toBe(sum);
   });
 
   it("User should be able to get balance by account number", async () => {
     const response = await request(app)
       .get("/users/balances/:accountNumber")
-      .set("Cookie", `Bearer ${token}`);
+      .set(`Authorization`, `Bearer ${token}`);
 
-    console.log(response.body);
+    
 
     expect(response.status).toBe(200);
   });
@@ -95,7 +92,8 @@ describe("Balance Collections test", () => {
   it("User should be able to get balance by user id", async () => {
     const response = await request(app)
       .get("/users/balances/:accountNumber")
-      .set("Cookie", `Bearer ${token}`);
+      .set(`Authorization`, `Bearer ${token}`);
+    
 
     expect(response.status).toBe(200);
   });
@@ -112,21 +110,21 @@ describe("Transfer Collection Testing", () => {
 
     const response = await request(app)
       .post("/users/transfer")
-      .set("Cookie", `Bearer ${token}`)
+      .set(`Authorization`, `Bearer ${token}`)
       .send(data);
 
-    console.log(response.body);
-
+    
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Transfer successful");
   });
 
   it("User should be able to get credit transactions by account number", async () => {
+    
     const response = await request(app)
       .get("/users/transaction/credit/:accountNumber")
-      .set("Cookie", `Bearer ${token}`);
+      .set(`Authorization`, `Bearer ${token}`);
 
-    console.log(response.body);
+    // console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.message).toBe(
       "Credit transaction fetched successfully"
@@ -138,9 +136,9 @@ describe("Transfer Collection Testing", () => {
   it("User should be able to get debit transactions by account number", async () => {
     const response = await request(app)
       .get("/users/transaction/debit/:accountNumber")
-      .set("Cookie", `Bearer ${token}`);
+      .set(`Authorization`, `Bearer ${token}`);
 
-    console.log(response.body);
+    // console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.message).toBe(
       "Debit transaction fetched successfully"

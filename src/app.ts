@@ -4,6 +4,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import dotenv from "dotenv";
+import passport from "passport";
 import keys from "./config/keys";
 import { connectDB, connectDBTest } from "./database/databases";
 import usersRouter from "./routes/users";
@@ -17,6 +18,9 @@ const app = express();
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
+
+
+app.use(passport.initialize());
 
 app.use(logger("dev"));
 app.use(express.json());

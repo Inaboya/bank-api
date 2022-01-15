@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { authUser }  from "../middleware/auth";
 import ApiFeatures from "../utils/apiFeatures";
 
 const session = require("express-session");
@@ -126,19 +127,15 @@ router.post("/login", (req: Request, res: Response) => {
         //Sign Token
         jwt.sign(
           payload,
-          "secret",
+          process.env.ACCESS_TOKEN_SCERET_KEY as string,
           {
             expiresIn: 3600,
           },
           (err, token) => {
             if (err) throw err;
-            console.log(err);
-            const tokenData = token;
-            res.cookie("jwt", tokenData, { httpOnly: true });
-
             return res.status(200).json({
               success: true,
-              token: `Bearer ${tokenData}`,
+              token,
             });
           }
         );
@@ -155,7 +152,7 @@ router.post("/login", (req: Request, res: Response) => {
 //@desc Create an account
 //@access Private
 
-router.post("/account", (req: Request, res: Response) => {
+router.post("/account", authUser, (req: Request, res: Response) => {
   User.findOne({ email: req.body.email }).then(async (user) => {
     if (!user) {
       return res.status(400).json({
@@ -202,7 +199,7 @@ router.post("/account", (req: Request, res: Response) => {
 //@desc Transfer funds
 //@access Private
 
-router.post("/transfer", (req: Request, res: Response) => {
+router.post("/transfer", authUser, (req: Request, res: Response) => {
   const {
     amount,
     senderAccountNumber,
@@ -270,8 +267,8 @@ router.post("/transfer", (req: Request, res: Response) => {
 //@access Private
 
 router.get(
-  "/transaction/credit/:accountNumber",
-  async (req: Request, res: Response) => {
+  "/transaction/credit/:accountNumber", authUser,
+  (req: Request, res: Response) => {
     const creditAccountNumber = req.params.accountNumber;
     Transfer.find({ receiverAccountNumber: creditAccountNumber })
       .select({ _id: 0 })
@@ -306,7 +303,7 @@ router.get(
 //@access Private
 
 router.get(
-  "/transaction/debit/:accountNumber",
+  "/transaction/debit/:accountNumber", authUser,
   (req: Request, res: Response) => {
     const debitAccountNumber = req.params.accountNumber;
 
@@ -341,7 +338,7 @@ router.get(
 //@desc Deposit funds
 //@access Private
 
-router.post("/deposit", async (req: Request, res: Response) => {
+router.post("/deposit", authUser, async (req: Request, res: Response) => {
   if (!req.body.amount || !req.body.accountNumber) {
     return res.status(400).json({
       error: "Please enter the amount and account number",
@@ -377,7 +374,7 @@ interface customRequest extends Request {
   user?: balancesModel;
 }
 
-router.get("/accounts", (req: customRequest, res: Response) => {
+router.get("/accounts", authUser, (req: Request, res: Response) => {
   Balances.find()
     .populate("userId", ["accountNumber", "balance"])
     .then((accounts) => {
@@ -398,7 +395,7 @@ router.get("/accounts", (req: customRequest, res: Response) => {
 //@desc Get account by account number
 //@access Private
 
-router.get("/balances/:accountNumber", (req: Request, res: Response) => {
+router.get("/balances/:accountNumber", authUser, (req: Request, res: Response) => {
   const errors = {
     account: "",
   };
@@ -415,12 +412,10 @@ router.get("/balances/:accountNumber", (req: Request, res: Response) => {
         res.status(404).json(errors);
       }
 
-      res
-        .status(200)
-        .json({
-          message: "Balance by account number fetched successfully",
-          account,
-        });
+      res.status(200).json({
+        message: "Balance by account number fetched successfully",
+        account,
+      });
     })
     .catch((err) => res.json(err));
 });
@@ -429,7 +424,7 @@ router.get("/balances/:accountNumber", (req: Request, res: Response) => {
 //@desc GET account by useId
 //@access Private
 
-router.get("/balance/:userId", (req: Request, res: Response) => {
+router.get("/balance/:userId", authUser, (req: Request, res: Response) => {
   const errors = {
     account: "",
   };

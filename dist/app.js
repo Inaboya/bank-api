@@ -9,6 +9,7 @@ const path_1 = __importDefault(require("path"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const passport_1 = __importDefault(require("passport"));
 const databases_1 = require("./database/databases");
 const users_1 = __importDefault(require("./routes/users"));
 // const indexRouter = require("./routes/index");
@@ -17,6 +18,7 @@ const app = (0, express_1.default)();
 // view engine setup
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "jade");
+app.use(passport_1.default.initialize());
 app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
