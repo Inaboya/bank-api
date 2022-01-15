@@ -2,13 +2,15 @@
   "name": "node-week-9",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": "16.13.0"
+  },
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
-    "compile": "tsc",
-    "compile:watch": "tsc --watch",
+    "start": "Cl= node ./bin/www",
+    "build": "tsc",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "clean": "rm -rf dist && mkdir dist",
+    "heroku-postbuild": "yarn clean && yarn build"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
